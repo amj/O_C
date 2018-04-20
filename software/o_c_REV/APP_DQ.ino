@@ -1,8 +1,9 @@
-// Copyright (c) 2015, 2016 Patrick Dowling, Tim Churches, Max Stadler
+// Copyright (c) 2015, 2016 Patrick Dowling, Tim Churches, Max Stadler, Google LLC
 //
 // Initial app implementation: Patrick Dowling (pld@gurkenkiste.com)
 // Modifications by: Tim Churches (tim.churches@gmail.com)
-// Yet more Modifications by: mxmxmx 
+// Yet more Modifications by: mxmxmx
+// Revised to provide non-octave transpositions by amj
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -70,7 +71,7 @@ enum DQ_ChannelSetting {
   DQ_CHANNEL_SETTING_OCTAVE,
   DQ_CHANNEL_SETTING_AUX_OUTPUT,
   DQ_CHANNEL_SETTING_PULSEWIDTH,
-  DQ_CHANNEL_SETTING_AUX_OCTAVE,
+  DQ_CHANNEL_SETTING_AUX_OFFSET,
   DQ_CHANNEL_SETTING_AUX_CV_DEST,
   DQ_CHANNEL_SETTING_TURING_LENGTH,
   DQ_CHANNEL_SETTING_TURING_PROB,
@@ -305,8 +306,8 @@ public:
     return values_[DQ_CHANNEL_SETTING_AUX_OUTPUT];
   }
 
-  int get_aux_octave() const {
-    return values_[DQ_CHANNEL_SETTING_AUX_OCTAVE];
+  int get_aux_offset() const {
+    return values_[DQ_CHANNEL_SETTING_AUX_OFFSET];
   }
 
   int get_pulsewidth() const {
@@ -692,13 +693,14 @@ public:
         
         case DQ_COPY:
         // offset the quantized value:
-          aux_sample_ = OC::DAC::pitch_to_scaled_voltage_dac(aux_channel, quantized, octave + continuous_offset_ + get_aux_octave(), OC::DAC::get_voltage_scaling(aux_channel));
+          aux_quantized = quantizer_.Process(pitch, root << 7, transpose + get_aux_offset());
+          aux_sample_ = OC::DAC::pitch_to_scaled_voltage_dac(aux_channel, aux_quantized, octave + continuous_offset_, OC::DAC::get_voltage_scaling(aux_channel));
         break;
         case DQ_ASR:
         {
           if (update_asr_) {
             update_asr_ = false;
-            aux_sample_ = OC::DAC::pitch_to_scaled_voltage_dac(aux_channel, last_aux_sample_, octave + continuous_offset_ + get_aux_octave(), OC::DAC::get_voltage_scaling(aux_channel));
+            aux_sample_ = OC::DAC::pitch_to_scaled_voltage_dac(aux_channel, last_aux_sample_, octave + continuous_offset_ + get_aux_offset(), OC::DAC::get_voltage_scaling(aux_channel));
             last_aux_sample_ = quantized;
           }
         }
@@ -981,10 +983,10 @@ public:
         *settings++ = DQ_CHANNEL_SETTING_PULSEWIDTH;
       break;
       case DQ_COPY:
-        *settings++ = DQ_CHANNEL_SETTING_AUX_OCTAVE;
+        *settings++ = DQ_CHANNEL_SETTING_AUX_OFFSET;
       break;
       case DQ_ASR:
-        *settings++ = DQ_CHANNEL_SETTING_AUX_OCTAVE; 
+        *settings++ = DQ_CHANNEL_SETTING_AUX_OFFSET; 
       break;
       default:
       break;
