@@ -478,6 +478,7 @@ public:
     if (update) {
         
       int32_t transpose, pitch, quantized = 0x0;
+      int32_t aux_quantized = 0x0;
       int source, cv_source, channel_id, octave, root, _aux_cv_destination;
       
       source = cv_source = get_source();
