@@ -550,7 +550,7 @@ public:
         case DQ_CHANNEL_SOURCE_CV2:
         case DQ_CHANNEL_SOURCE_CV3:
         case DQ_CHANNEL_SOURCE_CV4:
-        quantized = quantizer_.Process(pitch, root << 7, transpose);
+        quantized = quantizer_.Process(pitch, root << 7, 0); // 'transpose' now reserved for CV of aux out
         break;
         case DQ_CHANNEL_SOURCE_TURING:
         {
@@ -1110,7 +1110,7 @@ SETTINGS_DECLARE(DQ_QuantizerChannel, DQ_CHANNEL_SETTING_LAST) {
   { 0, -4, 4, "octave", NULL, settings::STORAGE_TYPE_I8 },
   { 0, 0, DQ_AUX_MODE_LAST-1, "aux.output", dq_aux_outputs, settings::STORAGE_TYPE_U8 },
   { 25, 0, PULSEW_MAX, "--> pw", NULL, settings::STORAGE_TYPE_U8 },
-  { 0, -5, 5, "--> aux +/-", NULL, settings::STORAGE_TYPE_I8 }, // aux octave
+  { 0, -12, 12, "--> aux +/-", NULL, settings::STORAGE_TYPE_I8 }, // aux octave
   { 0, 0, DQ_DEST_LAST-1, "CV aux.", dq_aux_cv_dest, settings::STORAGE_TYPE_U8 },
   { 16, 1, 32, " > LFSR length", NULL, settings::STORAGE_TYPE_U8 },
   { 128, 0, 255, " > LFSR p", NULL, settings::STORAGE_TYPE_U8 },
